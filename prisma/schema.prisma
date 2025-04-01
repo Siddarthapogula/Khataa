@@ -1,0 +1,69 @@
+// all utils for prisma
+
+enum ShopCategory {
+  WHOLESALE
+  RETAIL
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  adminId  Int    @id @default(autoincrement())
+  username String @unique
+  email    String @unique
+  password String
+}
+
+model Shop {
+  shopId               Int            @id @default(autoincrement())
+  shopName             String         @default("Store, Inc.")
+  shopMerchantName     String
+  shopMerchantEmail    String
+  shopMerchantPassword String
+  shopCategory         ShopCategory?
+  shopMerchantMobileNo String ? 
+  shopLocation         String ?
+  isOnBoarded          Boolean @default(false)
+  Registration         Registration[]
+}
+
+model Customer {
+  customerId       Int            @id @default(autoincrement())
+  customerName     String
+  customerEmail    String
+  customerPassword String
+  aadharCardNo     String ?
+  customerMobileNo String ?
+  customerAddress  String ?
+  isOnBoarded      Boolean @default(false)
+  Registration     Registration[]
+}
+
+model Registration {
+  registerdId  Int        @id @default(autoincrement())
+  customerId   Int
+  shopId       Int
+  amount Int        @default(0)
+  customer     Customer   @relation(fields: [customerId], references: [customerId])
+  shop         Shop       @relation(fields: [shopId], references: [shopId])
+  registeredAt DateTime
+  Payments     Payments[]
+}
+
+model Payments {
+  paymentId          Int          @id @default(autoincrement())
+  registeredId       Int
+  paymentDescription String
+  paymentAmount      Int
+  deduct             Boolean
+  add                Boolean
+  paymentDate        DateTime
+  registered         Registration @relation(fields: [registeredId], references: [registerdId])
+}
